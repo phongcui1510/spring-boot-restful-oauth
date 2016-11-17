@@ -9,6 +9,8 @@ public class UserModel {
 	private String name;
 
 	private String password;
+	
+	private String role;
 
 	private String email;
 	
@@ -32,6 +34,14 @@ public class UserModel {
 
 	public void setUuid(Integer uuid) {
 		this.uuid = uuid;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	public String getName() {

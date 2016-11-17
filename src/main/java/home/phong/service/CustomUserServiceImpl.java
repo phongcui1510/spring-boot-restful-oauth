@@ -22,13 +22,15 @@ public class CustomUserServiceImpl implements CustomUserService {
 		// TODO Auto-generated method stub
 		Iterable<User> users = userRepository.findAll();
 		List<User> myList = IterableUtils.toList(users); 
-		return ModelEntityConvertor.convertToEntity(myList);
+		return ModelEntityConvertor.convertToUserModel(myList);
 	}
 
 	@Override
-	public UserModel save(UserModel user) {
-		// TODO Auto-generated method stub
-		return null;
+	public UserModel save(UserModel userModel) {
+		User user = ModelEntityConvertor.convertToEntity(userModel);
+		User savedUser = userRepository.save(user);
+		
+		return ModelEntityConvertor.convertToUserModel(savedUser);
 	}
 
 }
