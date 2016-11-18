@@ -2,6 +2,8 @@ package home.phong.model;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class UserModel {
 
 	private Integer uuid;
@@ -26,6 +28,7 @@ public class UserModel {
 	
 	private String status;
 	
+	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date registrationdatetime;
 
 	public Integer getUuid() {

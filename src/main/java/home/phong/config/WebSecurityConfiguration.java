@@ -49,15 +49,23 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//	@Override
+//	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		// TODO Auto-generated method stub
 //		super.configure(auth);
-		auth.userDetailsService(userService);
+//		auth.userDetailsService(userService);
 //		auth.inMemoryAuthentication()
-//        .withUser("bill").password("abc123").roles("ADMIN").and()
-//        .withUser("bob").password("abc123").roles("USER");
-	}
+//	        .withUser("bill").password("abc123").roles("ADMIN").and()
+//	        .withUser("bob").password("abc123").roles("USER");
+//	}
+	
+	@Autowired
+    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+//		auth.userDetailsService(userService);
+        auth.inMemoryAuthentication()
+        .withUser("phong").password("123456").roles("ADMIN").and()
+        .withUser("bob").password("abc123").roles("USER");
+    }
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

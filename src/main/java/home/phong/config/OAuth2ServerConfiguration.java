@@ -18,9 +18,7 @@ package home.phong.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -34,7 +32,6 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
@@ -48,11 +45,22 @@ public class OAuth2ServerConfiguration {
 	protected static class ResourceServerConfiguration extends
 			ResourceServerConfigurerAdapter {
 
+//		@Autowired
+//	    private TokenStore tokenStore;
+		
+//		@Autowired
+//		@Qualifier("authenticationManagerBean")
+//		private AuthenticationManager authenticationManager;
+		
 		@Override
 		public void configure(ResourceServerSecurityConfigurer resources) {
 			// @formatter:off
 			resources
-				.resourceId(RESOURCE_ID).stateless(false);
+				.resourceId(RESOURCE_ID)
+//				.tokenStore(tokenStore)
+//				.authenticationManager(authenticationManager)
+				.stateless(false)
+				;
 			// @formatter:on
 		}
 
@@ -61,9 +69,9 @@ public class OAuth2ServerConfiguration {
 			// @formatter:off
 			 http.
 		        anonymous().disable()
-		        .requestMatchers().antMatchers("/user/**")
+		        .requestMatchers().antMatchers("/users/**")
 		        .and().authorizeRequests()
-		        .antMatchers("/user/**").access("hasRole('ADMIN')")
+		        .antMatchers("/users/**").access("hasRole('ADMIN')")
 		        .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
 			// @formatter:on
 		}
@@ -77,7 +85,9 @@ public class OAuth2ServerConfiguration {
 
 		private static String REALM="MY_OAUTH_REALM";
 		
-	    private TokenStore tokenStore = new InMemoryTokenStore();;
+//	    private TokenStore tokenStore = new InMemoryTokenStore();
+		@Autowired
+	    private TokenStore tokenStore;
 	 
 	    @Autowired
 	    private UserApprovalHandler userApprovalHandler;
@@ -87,14 +97,17 @@ public class OAuth2ServerConfiguration {
 		private AuthenticationManager authenticationManager;
 
 		@Autowired
-		private UserDetailsService userService;
+		private UserDetailsService userDetailsService;
 		
 		@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints)
 				throws Exception {
 			// @formatter:off
-			endpoints.tokenStore(tokenStore).userApprovalHandler(userApprovalHandler)
-            		.authenticationManager(authenticationManager).userDetailsService(userService);
+			endpoints.tokenStore(tokenStore)
+				.userApprovalHandler(userApprovalHandler)
+				.authenticationManager(authenticationManager)
+//				.userDetailsService(userDetailsService)
+				;
 			// @formatter:on
 		}
 
@@ -103,6 +116,7 @@ public class OAuth2ServerConfiguration {
 			// @formatter:off
 			clients
 				.inMemory()
+//				jdbc(dataSource())
 					.withClient("clientapp")
 						.authorizedGrantTypes("password", "refresh_token")
 						.authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
@@ -113,7 +127,8 @@ public class OAuth2ServerConfiguration {
 			            .refreshTokenValiditySeconds(600);//Refresh token is only valid for 10 minutes.;
 			// @formatter:on
 		}
-
+		
+		
 /*		@Bean
 		@Primary
 		public DefaultTokenServices tokenServices() {
@@ -125,9 +140,12 @@ public class OAuth2ServerConfiguration {
 		
 		@Override
 	    public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-	        oauthServer.realm(REALM+"/client");
+			oauthServer.tokenKeyAccess("permitAll()")
+	          			.checkTokenAccess("permitAll()");
+//			oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
+//					"hasAuthority('ROLE_TRUSTED_CLIENT')");
 	    }
-
+		
 	}
 
 }

@@ -12,11 +12,11 @@ import javax.persistence.Table;
 import org.springframework.web.multipart.MultipartFile;
 
 @Entity
-@Table(name = "es_user")
+@Table(name = "es_video")
 public class Video {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "videoId", nullable = false, updatable = false)
+	@Column(name = "videoid", nullable = false, updatable = false)
 	private Integer videoId;
 	
 	@Column(name = "ref_uuid")
@@ -34,8 +34,8 @@ public class Video {
 	@Column(name = "uploaddatetime")
 	private Date uploaddatetime;
 	
-	@Column(name = "publish_diction")
-	private String publish_diction;
+	@Column(name = "publish_dicsion")
+	private String publish_dicsion;
 	
 	@Column(name = "dicisiondate")
 	private String dicisiondate;
@@ -91,11 +91,12 @@ public class Video {
 	public void setUploaddatetime(Date uploaddatetime) {
 		this.uploaddatetime = uploaddatetime;
 	}
-	public String getPublish_diction() {
-		return publish_diction;
+	
+	public String getPublish_dicsion() {
+		return publish_dicsion;
 	}
-	public void setPublish_diction(String publish_diction) {
-		this.publish_diction = publish_diction;
+	public void setPublish_dicsion(String publish_dicsion) {
+		this.publish_dicsion = publish_dicsion;
 	}
 	public String getDicisiondate() {
 		return dicisiondate;

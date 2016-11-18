@@ -6,7 +6,7 @@ import home.phong.model.VideoModel;
 
 public interface VideoService {
 
-	public int save(VideoModel videoModel);
+	public VideoModel save(VideoModel videoModel);
 	
 	public List<VideoModel> findVideoByCurrentUser(Integer userId);
 }

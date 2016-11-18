@@ -12,14 +12,14 @@ public class VideoModel {
 	private String videotitle;
 	private String videodescription;
 	private Date uploaddatetime;
-	private String publish_diction;
+	private String publish_dicsion;
 	private String dicisiondate;
 	private String dicisionby;
 	private String publishno;
 	private String filepath;
 	private String filetype;
 	private String filename;
-	private MultipartFile file;
+//	private MultipartFile file;
 	public Integer getVideoId() {
 		return videoId;
 	}
@@ -56,11 +56,12 @@ public class VideoModel {
 	public void setUploaddatetime(Date uploaddatetime) {
 		this.uploaddatetime = uploaddatetime;
 	}
-	public String getPublish_diction() {
-		return publish_diction;
+	
+	public String getPublish_dicsion() {
+		return publish_dicsion;
 	}
-	public void setPublish_diction(String publish_diction) {
-		this.publish_diction = publish_diction;
+	public void setPublish_dicsion(String publish_dicsion) {
+		this.publish_dicsion = publish_dicsion;
 	}
 	public String getDicisiondate() {
 		return dicisiondate;
@@ -98,11 +99,11 @@ public class VideoModel {
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
-	public MultipartFile getFile() {
-		return file;
-	}
-	public void setFile(MultipartFile file) {
-		this.file = file;
-	}
+//	public MultipartFile getFile() {
+//		return file;
+//	}
+//	public void setFile(MultipartFile file) {
+//		this.file = file;
+//	}
 	
 }

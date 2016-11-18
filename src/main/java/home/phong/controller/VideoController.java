@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import home.phong.model.VideoModel;
+import home.phong.service.VideoService;
 
 @RestController
 @RequestMapping("/video")
@@ -33,9 +37,15 @@ public class VideoController {
 	@Value("${uploadLocation}")
 	private String uploadLocation;
 	
+	@Autowired
+	private VideoService videoService;
+	
+	private final Logger logger = Logger.getLogger("VideoControllerLogger");
+	
 	@RequestMapping(value="/upload", method= RequestMethod.POST)
-	public @ResponseBody String upload(@RequestBody VideoModel videoModel) {
-		MultipartFile file = videoModel.getFile();
+	public @ResponseBody String upload(@RequestParam("file") MultipartFile file, @RequestParam(name="videotitle", required=false) String videotitle) {
+//		MultipartFile file = videoModel.getFile();
+		logger.log(Level.INFO, "Start upload file");
 		if (!file.isEmpty()) {
 			String name = file.getOriginalFilename();
             try {
@@ -45,13 +55,24 @@ public class VideoController {
                 stream.write(bytes);
                 stream.close();
                 Files.copy(file.getInputStream(), Paths.get(uploadLocation).resolve(name));
-                return "You successfully uploaded " + name;
+                VideoModel videoModel = new VideoModel();
+                videoModel.setFilepath(Paths.get(uploadLocation).resolve(name).toString());
+                VideoModel savedVideo = videoService.save(videoModel);
+                return savedVideo.getVideoId().toString();
             } catch (Exception e) {
+            	logger.log(Level.SEVERE, e.getMessage());
                 return "You failed to upload " + name + " => " + e.getMessage();
             }
         } else {
             return "You failed to upload file because the file was empty.";
         }
+	}
+	
+	@RequestMapping(value="/info", method= RequestMethod.POST, consumes="application/json")
+	public @ResponseBody VideoModel videoInfo(@RequestBody VideoModel videoModel) {
+		logger.log(Level.INFO, "Start update information file: " + videoModel.getVideoId().toString());
+		VideoModel returnVideo = videoService.save(videoModel);
+		return returnVideo;
 	}
 	
 	@RequestMapping(value="/play", method= RequestMethod.GET)

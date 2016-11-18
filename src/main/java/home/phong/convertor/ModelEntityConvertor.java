@@ -6,7 +6,9 @@ import java.util.List;
 
 import home.phong.data.Role;
 import home.phong.data.User;
+import home.phong.data.Video;
 import home.phong.model.UserModel;
+import home.phong.model.VideoModel;
 
 public class ModelEntityConvertor {
 
@@ -21,6 +23,8 @@ public class ModelEntityConvertor {
 		model.setDistrict(user.getDistrict());
 		model.setEmail(user.getEmail());
 		model.setMobileno(user.getMobileNo());
+		model.setStatus(user.getStatus());
+		model.setRegistrationdatetime(user.getRegistrationdatetime());
 		return model;
 	}
 	
@@ -44,5 +48,39 @@ public class ModelEntityConvertor {
 		user.setStatus(userModel.getStatus());
 		user.setRegistrationdatetime(new Date());
 		return user;
+	}
+	
+	public static Video convertToEntity(VideoModel videoModel){
+		Video video = new Video();
+		video.setVideoId(videoModel.getVideoId());
+		video.setFilename(videoModel.getFilename());
+		video.setFiletype(videoModel.getFiletype());
+		video.setFilepath(videoModel.getFilepath());
+		video.setVideotitle(videoModel.getVideotitle());
+		video.setVideodescription(videoModel.getVideodescription());
+		video.setRef_uuid(videoModel.getRef_uuid());
+		video.setRef_email(videoModel.getRef_email());
+		video.setPublishno(videoModel.getPublishno());
+		video.setPublish_dicsion(videoModel.getPublish_dicsion());
+		video.setDicisionby(videoModel.getDicisionby());
+		video.setDicisiondate(videoModel.getDicisiondate());
+		return video;
+	}
+	
+	public static VideoModel convertToModel(Video video){
+		VideoModel videoModel = new VideoModel();
+		videoModel.setFilename(video.getFilename());
+		videoModel.setFiletype(video.getFiletype());
+		videoModel.setFilepath(video.getFilepath());
+		videoModel.setVideoId(video.getVideoId());
+		videoModel.setVideotitle(video.getVideotitle());
+		videoModel.setVideodescription(video.getVideodescription());
+		videoModel.setRef_uuid(video.getRef_uuid());
+		videoModel.setRef_email(video.getRef_email());
+		videoModel.setPublishno(video.getPublishno());
+		videoModel.setPublish_dicsion(video.getPublish_dicsion());
+		videoModel.setDicisionby(video.getDicisionby());
+		videoModel.setDicisiondate(video.getDicisiondate());
+		return videoModel;
 	}
 }
