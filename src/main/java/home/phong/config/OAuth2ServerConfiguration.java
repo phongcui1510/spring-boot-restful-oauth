@@ -16,12 +16,18 @@
 
 package home.phong.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -30,10 +36,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
-import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -52,6 +57,12 @@ public class OAuth2ServerConfiguration {
 //		@Qualifier("authenticationManagerBean")
 //		private AuthenticationManager authenticationManager;
 		
+		@Autowired
+        private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+        @Autowired
+        private CustomLogoutSuccessHandler customLogoutSuccessHandler;
+		
 		@Override
 		public void configure(ResourceServerSecurityConfigurer resources) {
 			// @formatter:off
@@ -67,13 +78,31 @@ public class OAuth2ServerConfiguration {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
-			 http.
-		        anonymous().disable()
-		        .requestMatchers().antMatchers("/users/**")
-		        .and().authorizeRequests()
-		        .antMatchers("/users/**").access("hasRole('ADMIN')")
-		        .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+//			 http.
+//		        anonymous().disable()
+//		        .requestMatchers().antMatchers("/users/**")
+//		        .and().authorizeRequests()
+//		        .antMatchers("/users/**").access("hasRole('ADMIN')")
+//		        .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
 			// @formatter:on
+			 
+			 http
+             .exceptionHandling()
+             .authenticationEntryPoint(customAuthenticationEntryPoint)
+             .and()
+             .logout()
+             .logoutUrl("/oauth/logout")
+             .logoutSuccessHandler(customLogoutSuccessHandler)
+             .and()
+             .csrf()
+             .requireCsrfProtectionMatcher(new AntPathRequestMatcher("/oauth/authorize"))
+             .disable()
+             .sessionManagement()
+             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+             .and()
+             .authorizeRequests()
+             .antMatchers("/hello/").permitAll()
+             .antMatchers("/users/**", "/video/**").authenticated();
 		}
 
 	}
@@ -81,25 +110,40 @@ public class OAuth2ServerConfiguration {
 	@Configuration
 	@EnableAuthorizationServer
 	protected static class AuthorizationServerConfiguration extends
-			AuthorizationServerConfigurerAdapter {
-
-		private static String REALM="MY_OAUTH_REALM";
+			AuthorizationServerConfigurerAdapter  implements EnvironmentAware{
+		
+		private static final String ENV_OAUTH = "authentication.oauth.";
+        private static final String PROP_CLIENTID = "clientid";
+        private static final String PROP_SECRET = "secret";
+        private static final String PROP_TOKEN_VALIDITY_SECONDS = "tokenValidityInSeconds";
+        
+//		private static String REALM="MY_OAUTH_REALM";
 		
 //	    private TokenStore tokenStore = new InMemoryTokenStore();
+//		@Autowired
+//	    private TokenStore tokenStore;
+		
 		@Autowired
-	    private TokenStore tokenStore;
+        private DataSource dataSource;
+		
+		@Bean
+        public TokenStore tokenStore() {
+            return new JdbcTokenStore(dataSource);
+        }
 	 
-	    @Autowired
-	    private UserApprovalHandler userApprovalHandler;
+//	    @Autowired
+//	    private UserApprovalHandler userApprovalHandler;
 
 		@Autowired
 		@Qualifier("authenticationManagerBean")
 		private AuthenticationManager authenticationManager;
 
-		@Autowired
-		private UserDetailsService userDetailsService;
+//		@Autowired
+//		private UserDetailsService userDetailsService;
 		
-		@Override
+		private RelaxedPropertyResolver propertyResolver;
+		
+		/*@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints)
 				throws Exception {
 			// @formatter:off
@@ -109,9 +153,17 @@ public class OAuth2ServerConfiguration {
 //				.userDetailsService(userDetailsService)
 				;
 			// @formatter:on
-		}
-
+		}*/
+		
 		@Override
+        public void configure(AuthorizationServerEndpointsConfigurer endpoints)
+                throws Exception {
+            endpoints
+                    .tokenStore(tokenStore())
+                    .authenticationManager(authenticationManager);
+        }
+
+		/*@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 			// @formatter:off
 			clients
@@ -126,7 +178,19 @@ public class OAuth2ServerConfiguration {
 						.accessTokenValiditySeconds(120)//Access token is only valid for 2 minutes.
 			            .refreshTokenValiditySeconds(600);//Refresh token is only valid for 10 minutes.;
 			// @formatter:on
-		}
+		}*/
+		
+		@Override
+        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+            clients
+                    .inMemory()
+                    .withClient(propertyResolver.getProperty(PROP_CLIENTID))
+                    .scopes("read", "write")
+                    .authorities(Authorities.ROLE_ADMIN.name(), Authorities.ROLE_USER.name())
+                    .authorizedGrantTypes("password", "refresh_token")
+                    .secret(propertyResolver.getProperty(PROP_SECRET))
+                    .accessTokenValiditySeconds(propertyResolver.getProperty(PROP_TOKEN_VALIDITY_SECONDS, Integer.class, 1800));
+        }
 		
 		
 /*		@Bean
@@ -138,13 +202,18 @@ public class OAuth2ServerConfiguration {
 			return tokenServices;
 		}*/
 		
-		@Override
+		/*@Override
 	    public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
 			oauthServer.tokenKeyAccess("permitAll()")
 	          			.checkTokenAccess("permitAll()");
 //			oauthServer.tokenKeyAccess("isAnonymous() || hasAuthority('ROLE_TRUSTED_CLIENT')").checkTokenAccess(
 //					"hasAuthority('ROLE_TRUSTED_CLIENT')");
-	    }
+	    }*/
+		
+		@Override
+        public void setEnvironment(Environment environment) {
+            this.propertyResolver = new RelaxedPropertyResolver(environment, ENV_OAUTH);
+        }
 		
 	}
 

@@ -19,10 +19,10 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public VideoModel save(VideoModel videoModel) {
 		Video video = ModelEntityConvertor.convertToEntity(videoModel);
-		Video persitVideo = videoRepository.findOne(1);
-		persitVideo.setVideotitle(video.getVideotitle());
-		persitVideo.setVideodescription(video.getVideodescription());
-		Video savedVideo = videoRepository.save(persitVideo);
+//		Video persitVideo = videoRepository.findOne(1);
+//		persitVideo.setVideotitle(video.getVideotitle());
+//		persitVideo.setVideodescription(video.getVideodescription());
+		Video savedVideo = videoRepository.save(video);
 		return ModelEntityConvertor.convertToModel(savedVideo);
 	}
 
@@ -30,6 +30,14 @@ public class VideoServiceImpl implements VideoService {
 	public List<VideoModel> findVideoByCurrentUser(Integer userId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public VideoModel findVideoById(Integer id) {
+		// TODO Auto-generated method stub
+		Video video = videoRepository.findOne(id);
+		VideoModel model = ModelEntityConvertor.convertToModel(video);
+		return model;
 	}
 
 }
