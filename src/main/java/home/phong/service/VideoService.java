@@ -11,4 +11,6 @@ public interface VideoService {
 	public VideoModel findVideoById(Integer id);
 	
 	public List<VideoModel> findVideoByCurrentUser(Integer userId);
+	
+	public VideoModel update (VideoModel videoModel);
 }

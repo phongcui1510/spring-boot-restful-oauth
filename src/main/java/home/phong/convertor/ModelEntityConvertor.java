@@ -83,4 +83,15 @@ public class ModelEntityConvertor {
 		videoModel.setDicisiondate(video.getDicisiondate());
 		return videoModel;
 	}
+	
+	public static List<VideoModel> convertToModel (List<Video> videos) {
+		List<VideoModel> videoModels = new ArrayList<VideoModel>();
+		if (videos != null && videos.size() > 0) {
+			for (Video v : videos) {
+				VideoModel video = convertToModel(v);
+				videoModels.add(video);
+			}
+		}
+		return videoModels;
+	}
 }

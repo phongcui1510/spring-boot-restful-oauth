@@ -40,7 +40,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import home.phong.data.User;
 import home.phong.model.VideoModel;
+import home.phong.repository.VideoRepository;
 import home.phong.service.VideoService;
 
 @RestController
@@ -59,10 +61,11 @@ public class VideoController {
 	private final Logger logger = Logger.getLogger("VideoControllerLogger");
 
 	@RequestMapping(value="/upload", method= RequestMethod.POST)
-	public @ResponseBody String upload(@RequestBody MultipartFile file) {
+	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response, @RequestBody MultipartFile file) {
 		//	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response) {
 		//				MultipartFile file = videoModel.getFile();
-		logger.log(Level.INFO, "Start upload file");
+		User user = (User)request.getUserPrincipal();
+		logger.log(Level.INFO, "Start upload file with user " + user.getUsername());
 		/*boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 		List fileNames = new ArrayList();
 		if (isMultipart) {
@@ -116,7 +119,9 @@ public class VideoController {
 				stream.close();
 				Files.copy(file.getInputStream(), Paths.get(uploadLocation).resolve(name));
 				VideoModel videoModel = new VideoModel();
+				videoModel.setFilename(name);
 				videoModel.setFilepath(Paths.get(uploadLocation).resolve(name).toString());
+				videoModel.setRef_uuid(user.getUuid());
 				VideoModel savedVideo = videoService.save(videoModel);
 				return savedVideo.getVideoId().toString();
 			} catch (Exception e) {
@@ -131,7 +136,7 @@ public class VideoController {
 	@RequestMapping(value="/info", method= RequestMethod.POST, consumes="application/json")
 	public @ResponseBody VideoModel videoInfo(@RequestBody VideoModel videoModel) {
 		logger.log(Level.INFO, "Start update information file: " + videoModel.getVideoId().toString());
-		VideoModel returnVideo = videoService.save(videoModel);
+		VideoModel returnVideo = videoService.update(videoModel);
 		return returnVideo;
 	}
 
@@ -159,8 +164,11 @@ public class VideoController {
 		//	    FileCopyUtils.copy(is, out);
 		return new ResponseEntity<Resource>(inputStreamResource, headers, HttpStatus.OK);
 	}
-
-	//	public @ResponseBody List<VideoModel> getAllVideo () {
-	//		
-	//	}
+	
+	@RequestMapping(value="/list", method=RequestMethod.GET)
+	public ResponseEntity<List<VideoModel>> getAllVideoUploadedByUser(HttpServletRequest request, HttpServletResponse response) {
+		User user = (User)request.getUserPrincipal();
+		List<VideoModel> model = videoService.findVideoByCurrentUser(user.getUuid());
+		return new ResponseEntity<List<VideoModel>>(model, HttpStatus.OK);
+	}
 }
