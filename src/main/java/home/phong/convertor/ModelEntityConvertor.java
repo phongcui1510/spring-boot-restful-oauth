@@ -58,8 +58,8 @@ public class ModelEntityConvertor {
 		video.setFilepath(videoModel.getFilepath());
 		video.setVideotitle(videoModel.getVideotitle());
 		video.setVideodescription(videoModel.getVideodescription());
-		video.setRef_uuid(videoModel.getRef_uuid());
-		video.setRef_email(videoModel.getRef_email());
+		video.setUserid(videoModel.getRef_uuid());
+		video.setUseremail(videoModel.getRef_email());
 		video.setPublishno(videoModel.getPublishno());
 		video.setPublish_dicsion(videoModel.getPublish_dicsion());
 		video.setDicisionby(videoModel.getDicisionby());
@@ -75,8 +75,8 @@ public class ModelEntityConvertor {
 		videoModel.setVideoId(video.getVideoId());
 		videoModel.setVideotitle(video.getVideotitle());
 		videoModel.setVideodescription(video.getVideodescription());
-		videoModel.setRef_uuid(video.getRef_uuid());
-		videoModel.setRef_email(video.getRef_email());
+		videoModel.setRef_uuid(video.getUserid());
+		videoModel.setRef_email(video.getUseremail());
 		videoModel.setPublishno(video.getPublishno());
 		videoModel.setPublish_dicsion(video.getPublish_dicsion());
 		videoModel.setDicisionby(video.getDicisionby());

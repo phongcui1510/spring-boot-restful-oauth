@@ -29,7 +29,7 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public List<VideoModel> findVideoByCurrentUser(Integer userId) {
-		List<Video> videos = videoRepository.findByRef_uuid();
+		List<Video> videos = videoRepository.findByUserid(userId);
 		List<VideoModel> videoModels = ModelEntityConvertor.convertToModel(videos);
 		return videoModels;
 	}
@@ -53,7 +53,7 @@ public class VideoServiceImpl implements VideoService {
 				video.setVideodescription(videoModel.getVideodescription());
 			}
 			if (!StringUtils.isEmpty(videoModel.getRef_email())) {
-				video.setRef_email(videoModel.getRef_email());
+				video.setUseremail(videoModel.getRef_email());
 			}
 			if (!StringUtils.isEmpty(videoModel.getPublishno())) {
 				video.setPublishno(videoModel.getPublishno());

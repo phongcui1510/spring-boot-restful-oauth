@@ -31,6 +31,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -64,7 +65,8 @@ public class VideoController {
 	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response, @RequestBody MultipartFile file) {
 		//	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response) {
 		//				MultipartFile file = videoModel.getFile();
-		User user = (User)request.getUserPrincipal();
+		OAuth2Authentication oAuth2Authentication = (OAuth2Authentication)request.getUserPrincipal();
+		User user = (User)oAuth2Authentication.getPrincipal();
 		logger.log(Level.INFO, "Start upload file with user " + user.getUsername());
 		/*boolean isMultipart = ServletFileUpload.isMultipartContent(request);
 		List fileNames = new ArrayList();
@@ -167,7 +169,9 @@ public class VideoController {
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	public ResponseEntity<List<VideoModel>> getAllVideoUploadedByUser(HttpServletRequest request, HttpServletResponse response) {
-		User user = (User)request.getUserPrincipal();
+		OAuth2Authentication oAuth2Authentication = (OAuth2Authentication)request.getUserPrincipal();
+		User user = (User)oAuth2Authentication.getPrincipal();
+		logger.log(Level.INFO, "List all videos of user : " + user.getUsername());
 		List<VideoModel> model = videoService.findVideoByCurrentUser(user.getUuid());
 		return new ResponseEntity<List<VideoModel>>(model, HttpStatus.OK);
 	}

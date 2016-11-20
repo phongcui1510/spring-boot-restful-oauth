@@ -19,11 +19,11 @@ public class Video {
 	@Column(name = "videoid", nullable = false, updatable = false)
 	private Integer videoId;
 	
-	@Column(name = "ref_uuid")
-	private Integer ref_uuid;
+	@Column(name = "userid")
+	private Integer userid;
 	
-	@Column(name = "ref_email")
-	private String ref_email;
+	@Column(name = "useremail")
+	private String useremail;
 	
 	@Column(name = "videotitle")
 	private String videotitle;
@@ -61,17 +61,18 @@ public class Video {
 	public void setVideoId(Integer videoId) {
 		this.videoId = videoId;
 	}
-	public Integer getRef_uuid() {
-		return ref_uuid;
+	
+	public Integer getUserid() {
+		return userid;
 	}
-	public void setRef_uuid(Integer ref_uuid) {
-		this.ref_uuid = ref_uuid;
+	public void setUserid(Integer userid) {
+		this.userid = userid;
 	}
-	public String getRef_email() {
-		return ref_email;
+	public String getUseremail() {
+		return useremail;
 	}
-	public void setRef_email(String ref_email) {
-		this.ref_email = ref_email;
+	public void setUseremail(String useremail) {
+		this.useremail = useremail;
 	}
 	public String getVideotitle() {
 		return videotitle;
