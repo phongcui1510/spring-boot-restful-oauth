@@ -23,6 +23,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -120,8 +121,10 @@ public class VideoController {
 				stream.write(bytes);
 				stream.close();
 				Files.copy(file.getInputStream(), Paths.get(uploadLocation).resolve(name));
+				String ext = name.substring(name.length() - 3, name.length());
 				VideoModel videoModel = new VideoModel();
 				videoModel.setFilename(name);
+				videoModel.setFiletype(ext);
 				videoModel.setFilepath(Paths.get(uploadLocation).resolve(name).toString());
 				videoModel.setRef_uuid(user.getUuid());
 				VideoModel savedVideo = videoService.save(videoModel);
@@ -137,16 +140,23 @@ public class VideoController {
 	}
 	@RequestMapping(value="/info", method= RequestMethod.POST, consumes="application/json")
 	public @ResponseBody VideoModel videoInfo(@RequestBody VideoModel videoModel) {
-		logger.log(Level.INFO, "Start update information file: " + videoModel.getVideoId().toString());
-		VideoModel returnVideo = videoService.update(videoModel);
-		return returnVideo;
+		if (videoModel != null) {
+			logger.log(Level.INFO, "Start update information file: " + videoModel.getVideoId().toString());
+			VideoModel returnVideo = videoService.update(videoModel);
+			return returnVideo;
+		} else {
+			VideoModel returnVideo = new VideoModel();
+			returnVideo.setErrorMsg("Input video cannot null");
+			return returnVideo;
+		}
 	}
 
-	@RequestMapping(value="/play", method= RequestMethod.GET)
-	public ResponseEntity<Resource> play(@RequestParam("videoId") Integer videoId) throws IOException {
+	@RequestMapping(value="/play", method= RequestMethod.GET, produces=MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public void play(@RequestParam("videoId") Integer videoId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		VideoModel model = videoService.findVideoById(videoId);
 //		File file = Paths.get(uploadLocation).resolve("SampleVideo.mp4").toFile();
 		File file = new File(model.getFilepath());
+		long length = file.length();
 		FileInputStream is = null;
 		is = new FileInputStream(file);
 		InputStreamResource inputStreamResource = new InputStreamResource(is);
@@ -161,10 +171,14 @@ public class VideoController {
 		//	    ResponseEntity<File> response = new ResponseEntity<>(file, HttpStatus.OK);
 		//	    response.getHeaders().setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		//	    headers.setContentLength(inputStreamResource.contentLength());
-		//	    FileCopyUtils.copy(is, out);
-		return new ResponseEntity<Resource>(inputStreamResource, headers, HttpStatus.OK);
+	    headers.setContentLength(length);
+	    response.setContentType("application/octect-stream");
+	    response.setContentLength((int)length);
+	    response.setHeader("Connection", "keep-alive");
+	    response.setHeader("Content-Disposition", "attachment; filename="+model.getFilename());
+//	    FileCopyUtils.copy(is, out);
+	    IOUtils.copy(is, response.getOutputStream());
+//		return new ResponseEntity<File>(file, headers, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)

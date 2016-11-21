@@ -46,29 +46,31 @@ public class VideoServiceImpl implements VideoService {
 	public VideoModel update(VideoModel videoModel) {
 		if (videoModel != null) {
 			Video video = videoRepository.findOne(videoModel.getVideoId());
-			if (!StringUtils.isEmpty(videoModel.getVideotitle())) {
-				video.setVideotitle(videoModel.getVideotitle());
+			if (video != null) {
+				if (!StringUtils.isEmpty(videoModel.getVideotitle())) {
+					video.setVideotitle(videoModel.getVideotitle());
+				}
+				if (!StringUtils.isEmpty(videoModel.getVideodescription())) {
+					video.setVideodescription(videoModel.getVideodescription());
+				}
+				if (!StringUtils.isEmpty(videoModel.getRef_email())) {
+					video.setUseremail(videoModel.getRef_email());
+				}
+				if (!StringUtils.isEmpty(videoModel.getPublishno())) {
+					video.setPublishno(videoModel.getPublishno());
+				}
+				if (!StringUtils.isEmpty(videoModel.getPublish_dicsion())) {
+					video.setPublish_dicsion(videoModel.getPublish_dicsion());
+				}
+				if (!StringUtils.isEmpty(videoModel.getDicisionby())) {
+					video.setDicisionby(videoModel.getDicisionby());
+				}
+				if (!StringUtils.isEmpty(videoModel.getDicisiondate())) {
+					video.setDicisiondate(videoModel.getDicisiondate());
+				}
+				Video returnVideo = videoRepository.save(video);
+				return ModelEntityConvertor.convertToModel(returnVideo);
 			}
-			if (!StringUtils.isEmpty(videoModel.getVideodescription())) {
-				video.setVideodescription(videoModel.getVideodescription());
-			}
-			if (!StringUtils.isEmpty(videoModel.getRef_email())) {
-				video.setUseremail(videoModel.getRef_email());
-			}
-			if (!StringUtils.isEmpty(videoModel.getPublishno())) {
-				video.setPublishno(videoModel.getPublishno());
-			}
-			if (!StringUtils.isEmpty(videoModel.getPublish_dicsion())) {
-				video.setPublish_dicsion(videoModel.getPublish_dicsion());
-			}
-			if (!StringUtils.isEmpty(videoModel.getDicisionby())) {
-				video.setDicisionby(videoModel.getDicisionby());
-			}
-			if (!StringUtils.isEmpty(videoModel.getDicisiondate())) {
-				video.setDicisiondate(videoModel.getDicisiondate());
-			}
-			Video returnVideo = videoRepository.save(video);
-			return ModelEntityConvertor.convertToModel(returnVideo);
 		}
 		return null;
 	}

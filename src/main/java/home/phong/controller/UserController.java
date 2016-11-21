@@ -23,6 +23,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +50,17 @@ public class UserController {
 
 	@RequestMapping("/create")
 	public UserModel createUser (UserModel user) {
-		return customUserService.save(user);
+		if (user != null) {
+			if (StringUtils.isEmpty(user.getName()) || StringUtils.isEmpty(user.getPassword()) || StringUtils.isEmpty(user.getRole())) {
+				user.setErrorMsg("User is missing require parameters");
+				return user;
+			} else {
+				user.setPassword(new StandardPasswordEncoder().encode(user.getPassword()));
+				return customUserService.save(user);
+			}
+		}
+		UserModel returnUser = new UserModel();
+		returnUser.setErrorMsg("User is null");
+		return returnUser;
 	}
 }

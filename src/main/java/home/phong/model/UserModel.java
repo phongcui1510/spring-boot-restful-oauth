@@ -28,8 +28,18 @@ public class UserModel {
 	
 	private String status;
 	
+	private String errorMsg;
+	
 	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date registrationdatetime;
+
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
 
 	public Integer getUuid() {
 		return uuid;
