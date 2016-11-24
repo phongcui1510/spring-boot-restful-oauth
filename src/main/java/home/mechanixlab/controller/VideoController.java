@@ -16,10 +16,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.Header;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,13 +58,17 @@ public class VideoController {
 	@Autowired
 	ServletContext context;
 	
-	@Value("${ANDROID_NOTIFICATION_URL}")
-	private String ANDROID_NOTIFICATION_URL;
-	
 	@Value("${ANDROID_NOTIFICATION_KEY}")
 	private String ANDROID_NOTIFICATION_KEY;
 	
-	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	@Value("${ANDROID_NOTIFICATION_ICON}")
+	private String ANDROID_NOTIFICATION_ICON;
+	
+	@Value("${ANDROID_NOTIFICATION_COLOR}")
+	private String ANDROID_NOTIFICATION_COLOR;
+	
+	@Value("${API_URL_FCM}")
+	public String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
 
 	private final Logger logger = Logger.getLogger("VideoControllerLogger");
 
@@ -193,7 +200,7 @@ public class VideoController {
 		return new ResponseEntity<List<VideoModel>>(model, HttpStatus.OK);
 	}
 	
-	private void sendAndroidNotification(String deviceToken,String message,String title) throws IOException {
+	private void sendAndroidNotification(String deviceToken, String message, String title) throws IOException {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		
 		HttpPost httppost = new HttpPost(API_URL_FCM);
@@ -201,25 +208,24 @@ public class VideoController {
 		JSONObject obj = new JSONObject();
         JSONObject msgObject = new JSONObject();
         
-//        msgObject.put("body", message);
-//        msgObject.put("title", title);
-//        msgObject.put("icon", ANDROID_NOTIFICATION_ICON);
-//        msgObject.put("color", ANDROID_NOTIFICATION_COLOR);
+        msgObject.put("body", message);
+        msgObject.put("title", title);
+        msgObject.put("icon", ANDROID_NOTIFICATION_ICON);
+        msgObject.put("color", ANDROID_NOTIFICATION_COLOR);
         
         obj.put("to", deviceToken);
-        obj.put("data", msgObject);
+        obj.put("notification", msgObject);
 		
-        Header header = new Header();
-        Minimal
-        header.setField(arg0);
-        httppost.addHeader(arg0);
+        httppost.addHeader("Content-Type", "application/json");
+        httppost.addHeader("Authorization", "key="+ANDROID_NOTIFICATION_KEY);
+        
+        HttpResponse response = httpclient.execute(httppost);
+		HttpEntity resEntity = response.getEntity();
 
-	        RequestBody body = RequestBody.create(mediaType, obj.toString());
-	        Request request = new Request.Builder().url(ANDROID_NOTIFICATION_URL).post(body)
-	                .addHeader("content-type", CONTENT_TYPE)
-	                .addHeader("authorization", "key="+ANDROID_NOTIFICATION_KEY).build();
-
-	        Response response = client.newCall(request).execute();
-	        logger.debug("Notification response >>>" +response.body().string())
+		System.out.println(response.getStatusLine());
+		if (resEntity != null) {
+			logger.info("Notification response >>>" + EntityUtils.toString(resEntity));
+		}
+		httpclient.close();
     }
 }
