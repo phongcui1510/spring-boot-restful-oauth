@@ -74,8 +74,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
         auth
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
+                .userDetailsService(userDetailsService);
+//                .passwordEncoder(passwordEncoder());
 
     }
 	

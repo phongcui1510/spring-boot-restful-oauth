@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +49,7 @@ public class UserController {
         this.customUserService = customUserService;
     }
 
+//	@PreAuthorize("hasAuthority('ADMIN')")
 	@RequestMapping(value="/list", method= RequestMethod.GET)
 	public ResponseEntity<List<UserModel>> getUsers() {
 		return new ResponseEntity<List<UserModel>>(customUserService.findAll(), HttpStatus.OK);
@@ -56,7 +58,7 @@ public class UserController {
 	@RequestMapping(value="/create", method= RequestMethod.POST)
 	public UserModel createUser (UserModel user) {
 		if (user != null) {
-			if (StringUtils.isEmpty(user.getName()) || StringUtils.isEmpty(user.getPassword()) || StringUtils.isEmpty(user.getRole())) {
+			if (StringUtils.isEmpty(user.getUsername()) || StringUtils.isEmpty(user.getPassword()) || StringUtils.isEmpty(user.getRole())) {
 				user.setErrorMsg("User is missing require parameters");
 				return user;
 			} else {
@@ -73,7 +75,7 @@ public class UserController {
 	public UserModel login (@RequestBody UserModel userModel, HttpServletRequest request, HttpServletResponse response) {
 		UserModel model = customUserService.findByUsernameAndPassword(userModel);
 		if (model == null) {
-			model = new UserModel();
+			model = userModel;
 			model.setErrorMsg("User is not found");
 		}
 		return model;

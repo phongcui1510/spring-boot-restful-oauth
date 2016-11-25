@@ -19,7 +19,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.Header;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -43,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import home.mechanixlab.data.User;
 import home.mechanixlab.model.VideoModel;
 import home.mechanixlab.service.VideoService;
+import home.mechanixlab.util.VideoUtils;
 
 
 @RestController
@@ -51,6 +51,9 @@ public class VideoController {
 
 	@Value("${uploadLocation}")
 	private String uploadLocation;
+	
+	@Value("${thumbnailLocation}")
+	private String thumbnailLocation;
 
 	@Autowired
 	private VideoService videoService;
@@ -74,53 +77,9 @@ public class VideoController {
 
 	@RequestMapping(value="/upload", method= RequestMethod.POST)
 	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response, @RequestBody MultipartFile file) {
-		//	public @ResponseBody String upload(HttpServletRequest request, HttpServletResponse response) {
-		//				MultipartFile file = videoModel.getFile();
 		OAuth2Authentication oAuth2Authentication = (OAuth2Authentication)request.getUserPrincipal();
 		User user = (User)oAuth2Authentication.getPrincipal();
 		logger.log(Level.INFO, "Start upload file with user " + user.getUsername());
-		/*boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-		List fileNames = new ArrayList();
-		if (isMultipart) {
-			// Create a factory for disk-based file items
-			FileItemFactory factory = new DiskFileItemFactory();
-
-			// Create a new file upload handler
-			ServletFileUpload upload = new ServletFileUpload(factory);
-
-			try {
-				// Parse the request
-				List items = upload.parseRequest(request);
-				logger.log(Level.INFO, "Found: " + items.size() + " files");
-				Iterator iterator = items.iterator();
-				while (iterator.hasNext()) {
-					FileItem item = (FileItem) iterator.next();
-					if (!item.isFormField() && !item.getName().equals("")) {
-						String fileName = item.getName();
-						String root = context.getRealPath("/");
-						File path = new File(Paths.get(uploadLocation).toString());
-						logger.log(Level.INFO, "Store file path: " + path);
-						if (!path.exists()) {
-							boolean status = path.mkdirs();
-						}
-
-						File uploadedFile = new File(path + "/" + fileName);
-						fileNames.add(fileName);
-						System.out.println("File Path:-"
-								+ uploadedFile.getAbsolutePath());
-
-						item.write(uploadedFile);
-					}
-				} 
-			}catch (FileUploadException e) {
-				System.out.println("FileUploadException:- " + e.getMessage());
-			} catch (Exception e) {
-				System.out.println("Exception:- " + e.getMessage());
-			}
-			return "successfully";
-		}
-		return "fail";	*/
-
 
 		if (!file.isEmpty()) {
 			String name = file.getOriginalFilename();
@@ -133,10 +92,15 @@ public class VideoController {
 				Files.copy(file.getInputStream(), Paths.get(uploadLocation).resolve(name));
 				String ext = name.substring(name.length() - 3, name.length());
 				VideoModel videoModel = new VideoModel();
+				videoModel.setVideotitle(name.substring(0, name.length() - 4));
 				videoModel.setFilename(name);
 				videoModel.setFiletype(ext);
 				videoModel.setFilepath(Paths.get(uploadLocation).resolve(name).toString());
 				videoModel.setRef_uuid(user.getUuid());
+				File savedFile = Paths.get(uploadLocation).resolve(name).toFile();
+				String thumbnail = name.substring(0, name.length() - 4) + ".png";
+				VideoUtils.getThumbnail(savedFile, Paths.get(thumbnailLocation).resolve(thumbnail).toString());
+				videoModel.setThumbnailpath(Paths.get(thumbnailLocation).resolve(thumbnail).toString());
 				VideoModel savedVideo = videoService.save(videoModel);
 				return savedVideo.getVideoId().toString();
 			} catch (Exception e) {
@@ -146,8 +110,18 @@ public class VideoController {
 		} else {
 			return "You failed to upload file because the file was empty.";
 		}
-		//				return "failed";
 	}
+	
+	@RequestMapping(value="/thumbnail", method= RequestMethod.GET, produces=MediaType.IMAGE_PNG_VALUE)
+	public void getThumbnail (@RequestParam("videoId") Integer videoId, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		VideoModel model = videoService.findVideoById(videoId);
+		logger.log(Level.INFO, "Video found: " + model.getVideoId());
+		File file = new File(model.getThumbnailpath());
+		FileInputStream is = new FileInputStream(file);
+		response.setContentType("image/png");
+		IOUtils.copy(is, response.getOutputStream());
+	}
+	
 	@RequestMapping(value="/info", method= RequestMethod.POST, consumes="application/json")
 	public @ResponseBody VideoModel videoInfo(@RequestBody VideoModel videoModel) {
 		if (videoModel != null) {
@@ -164,31 +138,17 @@ public class VideoController {
 	@RequestMapping(value="/play", method= RequestMethod.GET, produces=MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public void play(@RequestParam("videoId") Integer videoId, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		VideoModel model = videoService.findVideoById(videoId);
-//		File file = Paths.get(uploadLocation).resolve("SampleVideo.mp4").toFile();
 		File file = new File(model.getFilepath());
 		long length = file.length();
 		FileInputStream is = null;
 		is = new FileInputStream(file);
-		InputStreamResource inputStreamResource = new InputStreamResource(is);
-//		OutputStream os = new OutputStream() {
-//
-//			@Override
-//			public void write(int b) throws IOException {
-//				// TODO Auto-generated method stub
-//
-//			}
-//		};
-		//	    ResponseEntity<File> response = new ResponseEntity<>(file, HttpStatus.OK);
-		//	    response.getHeaders().setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setContentLength(length);
 	    response.setContentType("application/octect-stream");
 	    response.setContentLength((int)length);
 	    response.setHeader("Connection", "keep-alive");
 	    response.setHeader("Content-Disposition", "attachment; filename="+model.getFilename());
-//	    FileCopyUtils.copy(is, out);
 	    IOUtils.copy(is, response.getOutputStream());
-//		return new ResponseEntity<File>(file, headers, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/list", method=RequestMethod.GET)

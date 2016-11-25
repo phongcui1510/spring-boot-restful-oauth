@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.web.multipart.MultipartFile;
-
 @Entity
 @Table(name = "es_video")
 public class Video {
@@ -55,6 +53,16 @@ public class Video {
 	@Column(name = "filename")
 	private String filename;
 	
+	@Column(name = "thumbnailpath")
+	private String thumbnailpath;
+	
+	
+	public String getThumbnailpath() {
+		return thumbnailpath;
+	}
+	public void setThumbnailpath(String thumbnailpath) {
+		this.thumbnailpath = thumbnailpath;
+	}
 	public Integer getVideoId() {
 		return videoId;
 	}

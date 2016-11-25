@@ -19,9 +19,17 @@ public class VideoModel {
 	private String filepath;
 	private String filetype;
 	private String filename;
+	private String thumbnailpath;
 //	private MultipartFile file;
 	private String errorMsg;
 	
+	
+	public String getThumbnailpath() {
+		return thumbnailpath;
+	}
+	public void setThumbnailpath(String thumbnailpath) {
+		this.thumbnailpath = thumbnailpath;
+	}
 	public String getErrorMsg() {
 		return errorMsg;
 	}

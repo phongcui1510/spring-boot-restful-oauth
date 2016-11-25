@@ -17,7 +17,7 @@ public class ModelEntityConvertor {
 		if (user != null) {
 			UserModel model = new UserModel();
 			model.setUuid(user.getUuid());
-			model.setName(user.getName());
+			model.setUsername(user.getName());
 			model.setRole(user.getRole().name());
 			model.setPassword(user.getPassword());
 			model.setAge(user.getAge());
@@ -27,6 +27,7 @@ public class ModelEntityConvertor {
 			model.setMobileno(user.getMobileNo());
 			model.setStatus(user.getStatus());
 			model.setRegistrationdatetime(user.getRegistrationdatetime());
+			return model;
 		}
 		return null;
 	}
@@ -41,7 +42,7 @@ public class ModelEntityConvertor {
 	
 	public static User convertToEntity(UserModel userModel) {
 		User user = new User();
-		user.setName(userModel.getName());
+		user.setName(userModel.getUsername());
 		user.setPassword(userModel.getPassword());
 		user.setRole(Role.valueOf(userModel.getRole()));
 		user.setAge(userModel.getAge());
@@ -67,6 +68,7 @@ public class ModelEntityConvertor {
 		video.setPublish_dicsion(videoModel.getPublish_dicsion());
 		video.setDicisionby(videoModel.getDicisionby());
 		video.setDicisiondate(videoModel.getDicisiondate());
+		video.setThumbnailpath(videoModel.getThumbnailpath());
 		return video;
 	}
 	
@@ -84,6 +86,7 @@ public class ModelEntityConvertor {
 		videoModel.setPublish_dicsion(video.getPublish_dicsion());
 		videoModel.setDicisionby(video.getDicisionby());
 		videoModel.setDicisiondate(video.getDicisiondate());
+		videoModel.setThumbnailpath(video.getThumbnailpath());
 		return videoModel;
 	}
 	
