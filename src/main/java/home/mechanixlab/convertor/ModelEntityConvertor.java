@@ -14,19 +14,21 @@ import home.mechanixlab.model.VideoModel;
 public class ModelEntityConvertor {
 
 	public static UserModel convertToUserModel(User user){
-		UserModel model = new UserModel();
-		model.setUuid(user.getUuid());
-		model.setName(user.getName());
-		model.setRole(user.getRole().name());
-		model.setPassword(user.getPassword());
-		model.setAge(user.getAge());
-		model.setCity(user.getCity());
-		model.setDistrict(user.getDistrict());
-		model.setEmail(user.getEmail());
-		model.setMobileno(user.getMobileNo());
-		model.setStatus(user.getStatus());
-		model.setRegistrationdatetime(user.getRegistrationdatetime());
-		return model;
+		if (user != null) {
+			UserModel model = new UserModel();
+			model.setUuid(user.getUuid());
+			model.setName(user.getName());
+			model.setRole(user.getRole().name());
+			model.setPassword(user.getPassword());
+			model.setAge(user.getAge());
+			model.setCity(user.getCity());
+			model.setDistrict(user.getDistrict());
+			model.setEmail(user.getEmail());
+			model.setMobileno(user.getMobileNo());
+			model.setStatus(user.getStatus());
+			model.setRegistrationdatetime(user.getRegistrationdatetime());
+		}
+		return null;
 	}
 	
 	public static List<UserModel> convertToUserModel(List<User> users){

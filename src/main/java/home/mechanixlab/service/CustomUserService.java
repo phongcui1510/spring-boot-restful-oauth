@@ -10,4 +10,6 @@ public interface CustomUserService {
 	public List<UserModel> findAll();
 	
 	public UserModel save(UserModel user);
+	
+	public UserModel findByUsernameAndPassword(UserModel user);
 }

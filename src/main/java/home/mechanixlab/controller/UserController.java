@@ -20,11 +20,15 @@ package home.mechanixlab.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,7 +53,7 @@ public class UserController {
 		return new ResponseEntity<List<UserModel>>(customUserService.findAll(), HttpStatus.OK);
 	}
 
-	@RequestMapping("/create")
+	@RequestMapping(value="/create", method= RequestMethod.POST)
 	public UserModel createUser (UserModel user) {
 		if (user != null) {
 			if (StringUtils.isEmpty(user.getName()) || StringUtils.isEmpty(user.getPassword()) || StringUtils.isEmpty(user.getRole())) {
@@ -63,5 +67,15 @@ public class UserController {
 		UserModel returnUser = new UserModel();
 		returnUser.setErrorMsg("User is null");
 		return returnUser;
+	}
+	
+	@RequestMapping(value="/login", method= RequestMethod.POST)
+	public UserModel login (@RequestBody UserModel userModel, HttpServletRequest request, HttpServletResponse response) {
+		UserModel model = customUserService.findByUsernameAndPassword(userModel);
+		if (model == null) {
+			model = new UserModel();
+			model.setErrorMsg("User is not found");
+		}
+		return model;
 	}
 }

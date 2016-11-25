@@ -24,4 +24,6 @@ import home.mechanixlab.data.User;
 public interface UserRepository extends CrudRepository<User, Long> {
 
 	User findByName(String name);
+	
+	User findByNameAndPassword(String name, String password);
 }

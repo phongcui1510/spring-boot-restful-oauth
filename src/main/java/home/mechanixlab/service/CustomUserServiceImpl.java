@@ -33,4 +33,10 @@ public class CustomUserServiceImpl implements CustomUserService {
 		return ModelEntityConvertor.convertToUserModel(savedUser);
 	}
 
+	@Override
+	public UserModel findByUsernameAndPassword(UserModel userModel) {
+		User user = userRepository.findByNameAndPassword(userModel.getEmail(), userModel.getPassword());
+		return ModelEntityConvertor.convertToUserModel(user);
+	}
+
 }
