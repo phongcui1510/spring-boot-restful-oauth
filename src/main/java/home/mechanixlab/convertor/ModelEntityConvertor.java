@@ -69,6 +69,7 @@ public class ModelEntityConvertor {
 		video.setDicisionby(videoModel.getDicisionby());
 		video.setDicisiondate(videoModel.getDicisiondate());
 		video.setThumbnailpath(videoModel.getThumbnailpath());
+		video.setUploaddatetime(new Date());
 		return video;
 	}
 	

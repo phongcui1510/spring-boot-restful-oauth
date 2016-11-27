@@ -1,8 +1,7 @@
 package home.mechanixlab.model;
 
+import java.io.File;
 import java.util.Date;
-
-import org.springframework.web.multipart.MultipartFile;
 
 public class VideoModel {
 
@@ -20,10 +19,15 @@ public class VideoModel {
 	private String filetype;
 	private String filename;
 	private String thumbnailpath;
-//	private MultipartFile file;
+	private File thumbnailfile;
 	private String errorMsg;
 	
-	
+	public File getThumbnailfile() {
+		return thumbnailfile;
+	}
+	public void setThumbnailfile(File thumbnailfile) {
+		this.thumbnailfile = thumbnailfile;
+	}
 	public String getThumbnailpath() {
 		return thumbnailpath;
 	}
