@@ -35,7 +35,7 @@ public class NotificationController {
 	private String ANDROID_NOTIFICATION_COLOR;
 	
 	@Value("${API_URL_FCM}")
-	public String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	public String API_URL_FCM;
 	
 	private final Logger logger = Logger.getLogger("NotificationController");
 	
