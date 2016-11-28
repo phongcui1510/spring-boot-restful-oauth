@@ -25,8 +25,8 @@ import home.mechanixlab.model.Message;
 @RequestMapping("/notif")
 public class NotificationController {
 
-	@Value("${ANDROID_NOTIFICATION_KEY}")
-	private String ANDROID_NOTIFICATION_KEY;
+	@Value("${FIREBASE_API_KEY}")
+	private String FIREBASE_API_KEY;
 	
 	@Value("${ANDROID_NOTIFICATION_ICON}")
 	private String ANDROID_NOTIFICATION_ICON;
@@ -80,7 +80,7 @@ public class NotificationController {
         obj.put("data", msgObject);
 		
         httppost.addHeader("Content-Type", "application/json");
-        httppost.addHeader("Authorization", "key="+ANDROID_NOTIFICATION_KEY);
+        httppost.addHeader("Authorization", "key="+FIREBASE_API_KEY);
         
         HttpResponse response = httpclient.execute(httppost);
 		HttpEntity resEntity = response.getEntity();
