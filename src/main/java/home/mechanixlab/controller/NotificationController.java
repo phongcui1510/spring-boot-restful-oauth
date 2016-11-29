@@ -1,6 +1,7 @@
 package home.mechanixlab.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import home.mechanixlab.model.Message;
+import com.google.android.gcm.server.Message;
+import com.google.android.gcm.server.MulticastResult;
+import com.google.android.gcm.server.Sender;
+
 
 @RestController
 @RequestMapping("/notif")
@@ -40,10 +44,24 @@ public class NotificationController {
 	private final Logger logger = Logger.getLogger("NotificationController");
 	
 	@RequestMapping(value="/single", method= RequestMethod.POST)
-	public String sendSingleDevice(HttpServletRequest request, HttpServletResponse response, @RequestBody Message message) {
+	public String sendSingleDevice(HttpServletRequest request, HttpServletResponse response, @RequestBody home.mechanixlab.model.Message message) {
 		try {
-			sendAndroidNotification(message.getDeviceToken(), message.getMessage(), message.getTitle());
-			return "Send message successfully";
+			Sender sender = new Sender("AIzaSyDSoriyUarDnLGRZy4rG-ZswnwzwkwqWF4");
+
+	        ArrayList<String> devicesList = new ArrayList<String>();
+	        devicesList.add(message.getDeviceToken());
+
+	        Message m = new Message.Builder().timeToLive(30)
+	                .delayWhileIdle(true)
+	                .addData("title", message.getTitle())
+	                .addData("message", message.getMessage())
+	                .build();
+
+	        MulticastResult result = sender.send(m, devicesList, 1);
+	        sender.send(m, devicesList, 1);
+	        System.out.println(result.toString());
+	        
+			return result.toString();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -52,43 +70,28 @@ public class NotificationController {
 	}
 	
 	@RequestMapping(value="/topic", method= RequestMethod.POST)
-	public String sendTopic(HttpServletRequest request, HttpServletResponse response, @RequestBody Message message) {
+	public String sendTopic(HttpServletRequest request, HttpServletResponse response, @RequestBody home.mechanixlab.model.Message message) {
 		try {
-			sendAndroidNotification("/topics/"+message.getDeviceToken(), message.getMessage(), message.getTitle());
-			return "Send message to topic successfully";
+			Sender sender = new Sender("AIzaSyDSoriyUarDnLGRZy4rG-ZswnwzwkwqWF4");
+
+	        ArrayList<String> devicesList = new ArrayList<String>();
+	        devicesList.add("/topic/"+message.getDeviceToken());
+
+	        Message m = new Message.Builder().timeToLive(30)
+	                .delayWhileIdle(true)
+	                .addData("title", message.getTitle())
+	                .addData("message", message.getMessage())
+	                .build();
+
+	        MulticastResult result = sender.send(m, devicesList, 1);
+	        sender.send(m, devicesList, 1);
+	        System.out.println(result.toString());
+	        
+			return result.toString();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "Send message to topic get error: " + e.getMessage();
 		}
 	}
-	
-	private void sendAndroidNotification(String deviceToken, String message, String title) throws IOException {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-		
-		HttpPost httppost = new HttpPost(API_URL_FCM);
-		
-		JSONObject obj = new JSONObject();
-        JSONObject msgObject = new JSONObject();
-        
-        msgObject.put("title", title);
-        msgObject.put("message", message);
-        msgObject.put("icon", ANDROID_NOTIFICATION_ICON);
-//        msgObject.put("color", ANDROID_NOTIFICATION_COLOR);
-        
-        obj.put("to", deviceToken);
-        obj.put("data", msgObject);
-		
-        httppost.addHeader("Content-Type", "application/json");
-        httppost.addHeader("Authorization", "key="+FIREBASE_API_KEY);
-        
-        HttpResponse response = httpclient.execute(httppost);
-		HttpEntity resEntity = response.getEntity();
-
-		System.out.println(response.getStatusLine());
-		if (resEntity != null) {
-			logger.info("Notification response >>>" + EntityUtils.toString(resEntity));
-		}
-		httpclient.close();
-    }
 }

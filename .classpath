@@ -85,9 +85,11 @@
   <classpathentry kind="var" path="M2_REPO/org/json/json/20140107/json-20140107.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/springframework/spring-test/4.3.4.RELEASE/spring-test-4.3.4.RELEASE.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-collections4/4.1/commons-collections4-4.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpclient/4.5.2/httpclient-4.5.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpclient/4.5.2/httpclient-4.5.2.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpclient/4.5.2/httpclient-4.5.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.4.5/httpcore-4.4.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpmime/4.5.2/httpmime-4.5.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jcodec/jcodec-javase/0.1.9/jcodec-javase-0.1.9.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jcodec/jcodec/0.1.9/jcodec-0.1.9.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/google/gcm/gcm-server/1.0.0/gcm-server-1.0.0.jar"/>
 </classpath>
